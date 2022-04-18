@@ -19,7 +19,7 @@ const checkPermission = (role) => {
     } else if (role == "author") {
       res.send({ route: "/authors", permission: true });
     }else{
-        res.send({err:500});
+        res.send(`Error at ${req.url},Please check URL `);
     }
   };
 };
