@@ -3,28 +3,31 @@ const app = express();
 const http = require("http");
 const PORT = 9001;
 
-const loggerMiddleware = (req, res, next) => {
-  console.log("This is loggermiddlewares");
-  console.log("Request path");
+app.use((req, res, next) => {
+  console.log("This is loggermiddlewares made globally");
+  const time = new Date();
+  console.log(req.url);
+  console.log(req.path);
+  console.log("Log at this time :-", time);
   next();
-};
-const checkPermission = (req, res, next) => {
-  console.log("This is checkPermission");
-  
-};
-app.get("/", loggerMiddleware, (req, res) => {
-  res.send("hello");
-});
-app.get("/books", loggerMiddleware, (req, res) => {
-  res.send("hello books");
-});
-app.get("/libraries", loggerMiddleware, checkPermission, (req, res) => {
-  res.send("hello libraries");
-});
-app.get("/authors", loggerMiddleware, checkPermission, (req, res) => {
-  res.send("hello authors");
 });
 
+const checkPermission = (role) => {
+  return function (req, res) {
+    if (role == "librarian") {
+      res.send({ route: "/libraries", permission: true });
+    } else if (role == "author") {
+      res.send({ route: "/authors", permission: true });
+    }
+  };
+};
+
+app.get("/books", (req, res) => {
+  res.send({ route: "/books" });
+});
+app.get("/libraries", checkPermission("librarian"));
+app.get("/authors", checkPermission("author"));
+
 http.createServer(app).listen(PORT, () => {
-  console.log(`Listenning at port ${PORT}`);
+  console.log(`Server is running on port ${PORT}`);
 });
